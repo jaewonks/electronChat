@@ -2,20 +2,22 @@ import React, { useEffect } from 'react';
 import JoinedChatsList from '../components/JoinedChatsList';
 import AvailableChatsList from '../components/AvailableChatsList';
 import ViewTitle from '../components/shared/ViewTitle';
-import { fetchChats } from '../api/chats';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchChats } from '../actions/chats';
 
 export default () => {
+  const dispatch = useDispatch();
+  const chats = useSelector(({ chats }) => chats.items);
+
   useEffect(() => {
-    fetchChats().then(chats => {
-      debugger
-    });
-  }, []);
+    dispatch(fetchChats())
+  }, [dispatch]);
 
   return (
     <div className="row no-gutters fh">
       <div className="col-3 fh">
         {/* ########## CHAT LIST START ############ */}
-        <JoinedChatsList />
+        <JoinedChatsList chats={chats} />
         {/* ########## CHAT LIST END ############ */}
       </div>
       <div className="col-9 fh">
@@ -23,7 +25,7 @@ export default () => {
         <ViewTitle text='Choose your channel'/>
         {/* ########## CHAT NAME CONTAINER END ############ */}
         {/* ########## CHAT LIST START ############ */}
-        <AvailableChatsList />
+        <AvailableChatsList chats={chats} />
         {/* ########## CHAT LIST END ############ */}
       </div>
     </div>
