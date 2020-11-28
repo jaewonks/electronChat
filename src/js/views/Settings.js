@@ -1,6 +1,7 @@
 import React from 'react';
+import { withBaseLayout } from '../layouts/Base';
 
-export default () => {
+const Settings = () => {
   return (
     <div className="centered-view">
       <div className="centered-container">
@@ -42,3 +43,5 @@ export default () => {
     </div>
   )
 }
+
+export default withBaseLayout(Settings, { canGoBack: true });

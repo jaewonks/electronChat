@@ -1,37 +1,73 @@
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import StoreProvider from './store/StoreProvider';
 import Home from './views/Home.js';
-import Navbar from './components/Navbar.js';
 import Settings from './views/Settings.js';
 import Welcome from './views/Welcome.js';
 import Chat from './views/Chat.js';
-import { configureStore } from './store';
+import LoadingView from './components/shared/LoadingView.js';
 import { listenToAuthChanges } from './actions/auth'
 import { HashRouter as Router,
   Switch,
-  Route
+  Route,
+  Redirect
  } from 'react-router-dom';
 
- const store = configureStore();
+ const AuthRoute = ({children, ...rest}) => {
+  const user = useSelector(({auth}) => auth.user);
+  const onlyChild = React.Children.only(children);
+  return (
+    <Route
+      {...rest}
+      render={props => 
+        user ? 
+          React.cloneElement(onlyChild, {...rest, ...props}) : 
+          <Redirect to='/' />
+      }
+    />  
+  )
+ }
 
- export default () => {
+const ContentWrapper = ({children}) => <div className='content-wrapper'>{children}</div>
+const ChatApp = () => {
+  const dispatch = useDispatch();
+  const isChecking = useSelector(({auth}) => auth.isChecking)
+  const alertOnlineStatus = () => {
+    alert(navigator.online ? 'online' : 'offline')
+  }
 
   useEffect(() => {
-    store.dispatch(listenToAuthChanges());
-  }, [])
+    const unsubFromAuth = dispatch(listenToAuthChanges());
+    window.addEventListener('online', alertOnlineStatus);
+    window.addEventListener('offline', alertOnlineStatus);
+
+    return () => {
+      unsubFromAuth();
+      window.removeEventListener('online', alertOnlineStatus);
+      window.removeEventListener('offline', alertOnlineStatus);
+    }
+  }, [dispatch])
+  if (isChecking) {
+    return <LoadingView />
+  }
   return (
-  <Provider store={store} >
     <Router>
-      <Navbar />
-      <div className='content-wrapper'>
+      <ContentWrapper>
       <Switch>
         <Route path='/' exact ><Welcome /></Route>
-        <Route path='/home'><Home /></Route>
-        <Route path='/settings'><Settings /></Route>
-        <Route path='/chat/:id'><Chat /></Route>
+        <AuthRoute path='/home'><Home /></AuthRoute>
+        <AuthRoute path='/settings'><Settings /></AuthRoute>
+        <AuthRoute path='/chat/:id'><Chat /></AuthRoute>
       </Switch>
-      </div>
-    </Router>
-  </Provider>    
+      </ContentWrapper>
+    </Router>  
   )
 } 
+
+export default () => {
+  return (
+    <StoreProvider>
+      <ChatApp />
+    </StoreProvider>
+  )
+}
