@@ -5,8 +5,10 @@ import Home from './views/Home.js';
 import Settings from './views/Settings.js';
 import Welcome from './views/Welcome.js';
 import Chat from './views/Chat.js';
+import ChatCreate from './views/ChatCreate';
 import LoadingView from './components/shared/LoadingView.js';
-import { listenToAuthChanges } from './actions/auth'
+import { listenToAuthChanges } from './actions/auth.js';
+import { listenToConnectionChanges } from './actions/app.js';
 import { HashRouter as Router,
   Switch,
   Route,
@@ -31,22 +33,20 @@ import { HashRouter as Router,
 const ContentWrapper = ({children}) => <div className='content-wrapper'>{children}</div>
 const ChatApp = () => {
   const dispatch = useDispatch();
-  const isChecking = useSelector(({auth}) => auth.isChecking)
-  const alertOnlineStatus = () => {
-    alert(navigator.online ? 'online' : 'offline')
-  }
+  const isChecking = useSelector(({auth}) => auth.isChecking);
+  const isOnline = useSelector(({app}) => app.isOnline);
 
   useEffect(() => {
     const unsubFromAuth = dispatch(listenToAuthChanges());
-    window.addEventListener('online', alertOnlineStatus);
-    window.addEventListener('offline', alertOnlineStatus);
-
+    const unsubFromConnection = dispatch(listenToConnectionChanges());
     return () => {
       unsubFromAuth();
-      window.removeEventListener('online', alertOnlineStatus);
-      window.removeEventListener('offline', alertOnlineStatus);
+      unsubFromConnection();
     }
   }, [dispatch])
+  if (!isOnline) {
+    return <LoadingView message='Application has been disconnected from the internet. Please reconnect...' />
+  } 
   if (isChecking) {
     return <LoadingView />
   }
@@ -57,6 +57,7 @@ const ChatApp = () => {
         <Route path='/' exact ><Welcome /></Route>
         <AuthRoute path='/home'><Home /></AuthRoute>
         <AuthRoute path='/settings'><Settings /></AuthRoute>
+        <AuthRoute path='/chatCreate'><ChatCreate /></AuthRoute>
         <AuthRoute path='/chat/:id'><Chat /></AuthRoute>
       </Switch>
       </ContentWrapper>

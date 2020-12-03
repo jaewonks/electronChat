@@ -11,9 +11,9 @@ export default ({chats}) => {
         { 
           chats.map(chat =>
            <li
-           key={chat.id}
-           onClick={() => history.push(`/chat/${chat.id}`)}
-           className="item">
+            key={chat.id}
+            onClick={() => history.push(`/chat/${chat.id}`)}
+            className="item">
            <div className="item-status">
              <img src={chat.image} alt="Retail Admin" />
              <span className="status online"></span>

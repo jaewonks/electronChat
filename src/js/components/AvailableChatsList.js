@@ -8,8 +8,7 @@ export default ({chats}) => {
         <div className="container-fluid">
           <div className="alert alert-warning">No chats to join :(</div>
         </div> }
-        { 
-          chats.map(chat => 
+        { chats.map(chat => 
           <div 
             key={chat.id}
             className="col-lg-3 col-md-6 mb-3">

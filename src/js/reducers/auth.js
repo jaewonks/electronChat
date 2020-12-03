@@ -34,7 +34,7 @@ return combineReducers({
   isChecking: createIsFetchingReducer('AUTH_ON'),
   login: createLoginReducer(),
   register: createRegisterReducer()
-})
+  })
 }
 
 export default createAuthReducer();

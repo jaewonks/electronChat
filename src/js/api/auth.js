@@ -2,7 +2,7 @@ import db from '../db/firestore';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
-export const createUserProfile = userProfile => 
+const createUserProfile = userProfile => 
   db
     .collection('profiles')
     .doc(userProfile.uid)
@@ -22,8 +22,9 @@ export const register = async({ email, password, username, avatar }) => {
       username,
       email,
       avatar,
-      joinChats: []
+      joinedChats: []
     }
+    await createUserProfile(userProfile)
     return userProfile;
 }
 
