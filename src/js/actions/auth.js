@@ -22,6 +22,7 @@ export const logout = () => dispatch =>
     .logout()
     .then(_ => {
       dispatch({type: 'AUTH_LOGOUT_SUCCESS'});
+      dispatch({type: 'CHATS_FETCH_RESTART'});
     })
 
 export const listenToAuthChanges = () => dispatch => {
