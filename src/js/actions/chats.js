@@ -28,8 +28,24 @@ export const createChat = ( formData, userId ) => async dispatch => {
   newChat.admin = db.doc(`profiles/${userId}`);
 
   const chatId = await api.createChat(newChat);
-  dispatch({type: 'CHATS_CREATE_SUCCESS'});
+  dispatch({ type: 'CHATS_CREATE_SUCCESS' });
   await api.joinChat(userId, chatId)
-  dispatch({type: 'CHATS_JOIN_SUCCESS', chat: {...newChat, id: chatId}});
+  dispatch({ type: 'CHATS_JOIN_SUCCESS', chat: {...newChat, id: chatId}});
   return chatId;
+  }
+
+  export const subscribeToChat = chatId => dispatch => {
+    api
+      .subscribeToChat(chatId, async (chat) => { // onSubscribe(api)
+        const joinedUsers = await Promise.all(chat.joinedUsers.map(async userRef => {
+          const userSnapshot = await userRef.get();
+          // return { id: userSnapshot.id, ...userSnapshot.data()}
+          return userSnapshot.data();
+        }))
+        chat.joinedUsers = joinedUsers;
+        dispatch({ type: 'CHATS_SET_ACTIVE_CHAT', chat })
+      })
+      {
+
+      }
   }
