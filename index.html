@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval'" />
+  <meta http-equiv="Content-Security-Policy" 
+    content="default-src *; style-src 'self' 
+    http://* 'unsafe-inline'; script-src 'self' 
+    http://* 'unsafe-inline' 'unsafe-eval'
+    https://electron-chat-3e60c.firebaseio.com
+    https://s-usc1c-nss-277.firebaseio.com" />
   <title>Document</title>
 </head>
 <body>
@@ -10,3 +15,4 @@
 </body>
 <script src="./build/js/app.js"></script>
 </html>
+

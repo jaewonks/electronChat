@@ -9,6 +9,8 @@ import ChatCreate from './views/ChatCreate';
 import LoadingView from './components/shared/LoadingView.js';
 import { listenToAuthChanges } from './actions/auth.js';
 import { listenToConnectionChanges } from './actions/app.js';
+import { checkUserConnection } from './actions/connection'
+
 import { HashRouter as Router,
   Switch,
   Route,
@@ -35,35 +37,47 @@ const ChatApp = () => {
   const dispatch = useDispatch();
   const isChecking = useSelector(({auth}) => auth.isChecking);
   const isOnline = useSelector(({app}) => app.isOnline);
+  const user = useSelector(({auth}) => auth.user);
 
   useEffect(() => {
     const unsubFromAuth = dispatch(listenToAuthChanges());
     const unsubFromConnection = dispatch(listenToConnectionChanges());
+   
     return () => {
       unsubFromAuth();
       unsubFromConnection();
     }
   }, [dispatch])
-  if (!isOnline) {
-    return <LoadingView message='Application has been disconnected from the internet. Please reconnect...' />
-  } 
-  if (isChecking) {
-    return <LoadingView />
+
+useEffect(() => {
+  let unsubFromUserConnection;
+  if (user?.uid) {
+    unsubFromUserConnection = dispatch(checkUserConnection(user.uid));
   }
-  return (
-    <Router>
-      <ContentWrapper>
-      <Switch>
-        <Route path='/' exact ><Welcome /></Route>
-        <AuthRoute path='/home'><Home /></AuthRoute>
-        <AuthRoute path='/settings'><Settings /></AuthRoute>
-        <AuthRoute path='/chatCreate'><ChatCreate /></AuthRoute>
-        <AuthRoute path='/chat/:id'><Chat /></AuthRoute>
-      </Switch>
-      </ContentWrapper>
-    </Router>  
-  )
+  return () => {
+    unsubFromUserConnection && unsubFromUserConnection();
+  }
+}, [dispatch, user])
+
+if (!isOnline) {
+  return <LoadingView message='Application has been disconnected from the internet. Please reconnect...' />
 } 
+if (isChecking) {
+  return <LoadingView />
+}
+return (
+  <Router>
+    <ContentWrapper>
+    <Switch>
+      <Route path='/' exact ><Welcome /></Route>
+      <AuthRoute path='/home'><Home /></AuthRoute>
+      <AuthRoute path='/settings'><Settings /></AuthRoute>
+      <AuthRoute path='/chatCreate'><ChatCreate /></AuthRoute>
+      <AuthRoute path='/chat/:id'><Chat /></AuthRoute>
+    </Switch>
+    </ContentWrapper>
+  </Router>  
+)} 
 
 export default () => {
   return (
